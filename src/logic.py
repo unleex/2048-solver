@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Literal
 
 def get_move(mouse_pos,button_positions, button_size) -> str | None:
   #direction to number of rotations on 90° counterclockwise to make blocks always move down
@@ -42,7 +43,9 @@ def has_moves(field) -> bool:
     return False
 
 
-def make_move(field, move: str) -> tuple[np.ndarray, int]:
+def make_move(field, move: Literal['u', 'd', 'r', 'l']) -> tuple[np.ndarray, int]:
+  """Return a field after some move and return score"""
+
   rotation_times: dict[str, int] = {"u": 2,
     "d": 0,
     "r": 3,

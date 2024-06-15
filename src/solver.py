@@ -2,11 +2,6 @@ import logic
 import numpy as np
 
 SCORE_ON_LOSS = -250
-#TODO: make "move to rotation" transformation directly in make_move
-callbacks = {0: "u",
-    1: "l",
-    2: "d",
-    3: "r"}
 
 def _get_spawn_variations(field):
     """Return list of fields, with block spawned on each differently"""
@@ -32,21 +27,20 @@ def _move_scores(field, depth):
     if not logic.has_moves(field):
         return SCORE_ON_LOSS
 
-    mean_next_possible_move_scores = np.zeros((4,))
-    move_scores = np.zeros((4,))
-    for move in range(4):#u, d, r, l
-        new_field, score = logic.make_move(field.copy(), callbacks[move])
+    move_scores = {"u": 0, "d": 0, "r": 0, "l": 0}
+    for move in move_scores:
+        new_field, score = logic.make_move(field.copy(), move)
+        if np.allclose(field, new_field):
+            continue
         move_scores[move] = score
         possible_scores = np.array([])
         if depth > 1:
-            for field in _get_spawn_variations(new_field):
-                possible_scores = np.append(
-                    possible_scores,
-                    np.max(_move_scores(field, depth-1)))
-            mean_next_possible_move_scores[move] = np.mean(possible_scores)
-    return mean_next_possible_move_scores + move_scores
+            possible_scores = [np.max(list(_move_scores(possible_field, depth - 1).values()))
+                               for possible_field in _get_spawn_variations(new_field)]
+            move_scores[move] += np.mean(possible_scores)
+    return move_scores
 
 
 def best_move(field, depth) -> str:
-    print(f"MOVE: {callbacks[np.argmax(_move_scores(field, depth))]}")
-    return callbacks[np.argmax(_move_scores(field, depth))]
+    move_scores = _move_scores(field, depth)
+    return max(move_scores, key=move_scores.get)
