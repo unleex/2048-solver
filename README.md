@@ -1,7 +1,7 @@
 # 2048 Solver
 Use this solver to solve any 2048 game!
 
-# Supports
+## Supports
 - Currently Mac/Linux only, because I work only on its OS. If anyone wants Windows support, I will help with implementing it.
 - Mobile support **isn't planned** because it isn't possible to simulate key presses there (without help of computer). 
 - This solver works only on 4x4 field, but working with larger fields is planned.
