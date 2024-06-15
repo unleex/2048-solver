@@ -1,35 +1,6 @@
 import numpy as np
 from typing import Literal
 
-def get_move(mouse_pos,button_positions, button_size) -> str | None:
-  #direction to number of rotations on 90° counterclockwise to make blocks always move down
-  callbacks = {0: "u",
-              1: "l",
-              2: "d",
-              3: "r"}
-  
-  for i in range(len(button_positions)):
-    if (button_positions[i][0] + button_size >= mouse_pos[0] 
-        and mouse_pos[0] >= button_positions[i][0] 
-        and button_positions[i][1] + button_size>= mouse_pos[1] 
-        and mouse_pos[1] >= button_positions[i][1]):
-      return callbacks[i]
-      
-
-def spawn_block(field):
-  choicex = list(range(len(field)))
-  choicey = list(range(len(field[0])))
-  spawnx, spawny = np.random.choice(choicex), np.random.choice(choicey)
-  switch = 0
-  while field[spawnx][spawny] != 0:
-    if switch:
-      del choicex[choicex.index(spawnx)]
-    else:
-      del choicey[choicey.index(spawny)]
-    spawnx, spawny = np.random.choice(choicex), np.random.choice(choicey)
-  return spawnx, spawny
-
-
 def has_moves(field) -> bool:
     for i in range(len(field)):
       for j in range(len(field)):
