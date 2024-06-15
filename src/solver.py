@@ -25,7 +25,7 @@ def _get_spawn_variations(field):
 def _move_scores(field, depth):
 
     if not logic.has_moves(field):
-        return SCORE_ON_LOSS
+        return {"all moves": SCORE_ON_LOSS}
 
     move_scores = {"u": 0, "d": 0, "r": 0, "l": 0}
     for move in move_scores:
