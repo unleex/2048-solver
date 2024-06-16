@@ -1,6 +1,5 @@
 keyboard==0.13.5
 mss==9.0.1
-numpy==1.26.4
-pyautogui==0.9.54
-pygame==2.5.2
-pytesseract==0.3.10
+numpy==2.0.0
+Pillow==10.3.0
+PyAutoGUI==0.9.54
