@@ -7,9 +7,9 @@ Use this solver to solve any 2048 game!
 - This solver works only on 4x4 field, but working with larger fields is planned.
 
 ## Before usage
-- This project uses Tesseract to find numbers on the 2048 field. You'll need not only tot pip install it, but also **brew install**,
+- This project uses Tesseract to find numbers on the 2048 field. You'll need not only tot pip install it, but also (Mac) **brew install**,
     more info in its repository: https://github.com/tesseract-ocr/tesseract.
-- To select field, this project uses keyboard module, that **requires root rights**. 
+- To run and stop the code, this project uses keyboard module, that **requires root rights**. 
     To run the code on Mac/Linux, paste *sudo python src/main.py* (with this repository as current working directory)
 
 ## Usage
