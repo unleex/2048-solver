@@ -4,9 +4,9 @@ import numpy as np
 import pyautogui
 from PIL import Image
 import os
-
 TILE_PHOTO_CROPPING = 30 # cut edges of a tile that tesseract handles as symbols like '_', '/', 'i', etc.
 TILE_PHOTO_PAD_WIDTH = 70 # because tesseract can't process small images. values higher than 100 stop working
+TILE_PHOTO_PAD_COLOR = (100, 100)
 FIELD_SIZE = 4
 INSTRUCTION = """
 Select your 2048 field. Point your mouse on field's corner and press right shift. Then repeat for the opposite corner. 
@@ -37,7 +37,6 @@ def set_field_pos() -> dict[str, int]:
     #keyboard.remove_hotkey('backspace')
     return {'top': upper, 'left': left, 'width': width, 'height': height}
 
-
 def read_field(field_pos) -> np.ndarray:
     tile_size = field_pos['width']//FIELD_SIZE
     field = np.zeros((FIELD_SIZE, FIELD_SIZE))
@@ -52,16 +51,17 @@ def read_field(field_pos) -> np.ndarray:
                        }
                 )
                 pixels = np.asarray(pixels)
-                shape = pixels.shape
                 cropped_pixels = pixels[TILE_PHOTO_CROPPING:pixels.shape[0]- TILE_PHOTO_CROPPING,
                                         TILE_PHOTO_CROPPING:pixels.shape[1]- TILE_PHOTO_CROPPING] # crop RGB values
+
                 padded_pixels = np.pad(
                     cropped_pixels, 
                     pad_width=((TILE_PHOTO_PAD_WIDTH, TILE_PHOTO_PAD_WIDTH),
                                (TILE_PHOTO_PAD_WIDTH, TILE_PHOTO_PAD_WIDTH),
                                (0,0)
                                ), # pad RGB values with 255 (white) and leave alpha channel 
-                    constant_values=255)
+                    constant_values=TILE_PHOTO_PAD_COLOR)
+
                 Image.fromarray(padded_pixels).save(f'reading_field/field_photo.png')
                 command = f"tesseract --psm 7 reading_field/field_photo.png reading_field/field_values -l eng"
                 os.system(command)
