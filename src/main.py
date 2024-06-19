@@ -1,14 +1,12 @@
 import interact
 import solver
 import keyboard
-from datetime import datetime
 
 DEPTH = 3
 
 field_pos = interact.set_field_pos()
-keyboard.add_hotkey('space', lambda: globals().update({'running': False}))
+keyboard.add_hotkey('space', lambda: globals().update({'running': False})) # without lambda this stops working
 
-start_time = datetime.today()
 running = True
 while running:
     field = interact.read_field(field_pos)
@@ -17,6 +15,3 @@ while running:
         interact.send_move(best_move)
     else:
         running = False
-
-end_time = datetime.today()
-print('Time took to solve:',end_time - start_time)

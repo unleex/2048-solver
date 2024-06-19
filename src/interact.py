@@ -12,7 +12,7 @@ INSTRUCTION = """
 Select your 2048 field. Point your mouse on field's corner and press right shift. Then repeat for the opposite corner. 
 If you selected corner incorrectly, press backspace and select it again. 
 While selecting field and in further algorithm work, don't move(scroll, zoom) your screen AT ALL!
-If you want to stop solving, press space"""
+If you want to stop solving, hold space"""
 MAX_FIELD_X_Y_DIFFERENCE = 50
 EXCEEDED_MAX_FIELD_X_Y_DIFFERENCE_MSG = "Selected field doesn't look like a square. Try to select more accurately."
 
@@ -32,42 +32,37 @@ def set_field_pos() -> dict[str, int]:
     width = right - left
     height = bottom - upper
     assert abs(width - height) < MAX_FIELD_X_Y_DIFFERENCE, EXCEEDED_MAX_FIELD_X_Y_DIFFERENCE_MSG
-    
-    #keyboard.remove_hotkey('shift')
-    #keyboard.remove_hotkey('backspace')
+
     return {'top': upper, 'left': left, 'width': width, 'height': height}
 
 def read_field(field_pos) -> np.ndarray:
-    tile_size = field_pos['width']//FIELD_SIZE
     field = np.zeros((FIELD_SIZE, FIELD_SIZE))
+    with mss.mss() as screenshotter:
+        field_pixels = np.asarray(
+            screenshotter.grab(field_pos)
+        )
+    tile_size = field_pixels.shape[0] // FIELD_SIZE
     for i in range(FIELD_SIZE):
         for j in range(FIELD_SIZE):
-            with mss.mss() as screenshotter:
-                pixels = screenshotter.grab(
-                       {'top': field_pos['top'] + i * tile_size, 
-                       'left': field_pos['left'] + j * tile_size,  
-                       'height': tile_size,
-                       'width': tile_size 
-                       }
-                )
-                pixels = np.asarray(pixels)
-                cropped_pixels = pixels[TILE_PHOTO_CROPPING:pixels.shape[0]- TILE_PHOTO_CROPPING,
-                                        TILE_PHOTO_CROPPING:pixels.shape[1]- TILE_PHOTO_CROPPING] # crop RGB values
+            pixels = field_pixels[i * tile_size : (i + 1) * tile_size,
+                                  j * tile_size : (j + 1) * tile_size]
+            cropped_pixels = pixels[TILE_PHOTO_CROPPING : pixels.shape[0] - TILE_PHOTO_CROPPING,
+                                    TILE_PHOTO_CROPPING : pixels.shape[1] - TILE_PHOTO_CROPPING] # crop RGB values
+            padded_pixels = np.pad(
+                cropped_pixels, 
+                pad_width=(
+                            (TILE_PHOTO_PAD_WIDTH, TILE_PHOTO_PAD_WIDTH),
+                            (TILE_PHOTO_PAD_WIDTH, TILE_PHOTO_PAD_WIDTH),
+                            (0,0)
+                            ), # pad RGB values with some color and leave alpha channel as it is 
+                constant_values=TILE_PHOTO_PAD_COLOR)
 
-                padded_pixels = np.pad(
-                    cropped_pixels, 
-                    pad_width=((TILE_PHOTO_PAD_WIDTH, TILE_PHOTO_PAD_WIDTH),
-                               (TILE_PHOTO_PAD_WIDTH, TILE_PHOTO_PAD_WIDTH),
-                               (0,0)
-                               ), # pad RGB values with 255 (white) and leave alpha channel 
-                    constant_values=TILE_PHOTO_PAD_COLOR)
-
-                Image.fromarray(padded_pixels).save(f'reading_field/field_photo.png')
-                command = f"tesseract --psm 7 reading_field/field_photo.png reading_field/field_values -l eng"
-                os.system(command)
-                with open('reading_field/field_values.txt') as f:
-                    value = f.read().replace('\n', '')  
-                field[i][j] = value if value.isdigit() else 0
+            Image.fromarray(padded_pixels).save(f'reading_field/field_photo.png')
+            command = f"tesseract --psm 7 reading_field/field_photo.png reading_field/field_values -l eng"
+            os.system(command)
+            with open('reading_field/field_values.txt') as f:
+                value = f.read().replace('\n', '')
+            field[i][j] = value if value.isdigit() else 0
     return field
 
 def send_move(move):
