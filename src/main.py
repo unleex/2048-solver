@@ -2,11 +2,10 @@ import interact
 import solver
 import keyboard
 
+
 DEPTH = 3
-
+keyboard.add_hotkey('space', lambda: globals().update({'running': False}))
 field_pos = interact.set_field_pos()
-keyboard.add_hotkey('space', lambda: globals().update({'running': False})) # without lambda this stops working
-
 running = True
 while running:
     field = interact.read_field(field_pos)

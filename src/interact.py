@@ -57,10 +57,10 @@ def read_field(field_pos) -> np.ndarray:
                             ), # pad RGB values with some color and leave alpha channel as it is 
                 constant_values=TILE_PHOTO_PAD_COLOR)
 
-            Image.fromarray(padded_pixels).save(f'reading_field/field_photo.png')
-            command = f"tesseract --psm 7 reading_field/field_photo.png reading_field/field_values -l eng"
+            Image.fromarray(padded_pixels).save(f'src/reading_field/field_photo.png')
+            command = f"tesseract --psm 7 src/reading_field/field_photo.png src/reading_field/field_values -l eng"
             os.system(command)
-            with open('reading_field/field_values.txt') as f:
+            with open('src/reading_field/field_values.txt') as f:
                 value = f.read().replace('\n', '')
             field[i][j] = value if value.isdigit() else 0
     return field
