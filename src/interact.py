@@ -4,6 +4,8 @@ import numpy as np
 import pyautogui
 from PIL import Image
 import os
+
+
 TILE_PHOTO_CROPPING = 30 # cut edges of a tile that tesseract handles as symbols like '_', '/', 'i', etc.
 TILE_PHOTO_PAD_WIDTH = 70 # because tesseract can't process small images. values higher than 100 stop working
 TILE_PHOTO_PAD_COLOR = (100, 100)
@@ -16,7 +18,13 @@ If you want to stop solving, hold space"""
 MAX_FIELD_X_Y_DIFFERENCE = 50
 EXCEEDED_MAX_FIELD_X_Y_DIFFERENCE_MSG = "Selected field doesn't look like a square. Try to select more accurately."
 
+
 def set_field_pos() -> dict[str, int]:
+    """
+    Ask user to select opposing field's corners, extract click 
+    coordinates and return them in mss monitor format (top, left, width, height).
+    Raises AssertionError if user selects area that doesn't look like a square.
+    """
     print(INSTRUCTION)
     field_corners_xy = []
     keyboard.add_hotkey('shift', lambda: field_corners_xy.append((pyautogui.position().x, pyautogui.position().y)))
@@ -35,7 +43,12 @@ def set_field_pos() -> dict[str, int]:
 
     return {'top': upper, 'left': left, 'width': width, 'height': height}
 
+
 def read_field(field_pos) -> np.ndarray:
+    """
+    Extract field values within given monitor coordinates.
+    This creates two files: screenshot of a field and a text file with extracted field values.
+    """
     field = np.zeros((FIELD_SIZE, FIELD_SIZE))
     with mss.mss() as screenshotter:
         field_pixels = np.asarray(
@@ -54,17 +67,13 @@ def read_field(field_pos) -> np.ndarray:
                             (TILE_PHOTO_PAD_WIDTH, TILE_PHOTO_PAD_WIDTH),
                             (TILE_PHOTO_PAD_WIDTH, TILE_PHOTO_PAD_WIDTH),
                             (0,0)
-                            ), # pad RGB values with some color and leave alpha channel as it is 
+                            ),
                 constant_values=TILE_PHOTO_PAD_COLOR)
 
-            Image.fromarray(padded_pixels).save(f'src/reading_field/field_photo.png')
-            command = f"tesseract --psm 7 src/reading_field/field_photo.png src/reading_field/field_values -l eng"
+            Image.fromarray(padded_pixels).save("src/reading_field/field_photo.png")
+            command = "tesseract --psm 7 src/reading_field/field_photo.png src/reading_field/field_values -l eng"
             os.system(command)
-            with open('src/reading_field/field_values.txt') as f:
+            with open("src/reading_field/field_values.txt") as f:
                 value = f.read().replace('\n', '')
             field[i][j] = value if value.isdigit() else 0
     return field
-
-def send_move(move):
-    move_to_key = {'u': 'up', 'd': 'down', 'l': 'left', 'r': 'right'}
-    pyautogui.press(move_to_key[move])

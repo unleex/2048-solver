@@ -1,6 +1,7 @@
 import interact
 import solver
 import keyboard
+import pyautogui
 
 
 DEPTH = 3
@@ -11,6 +12,6 @@ while running:
     field = interact.read_field(field_pos)
     best_move = solver.best_move(field, DEPTH)
     if best_move != "no moves":
-        interact.send_move(best_move)
+        pyautogui.press(best_move)
     else:
         running = False

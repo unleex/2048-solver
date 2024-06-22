@@ -28,7 +28,7 @@ def _move_scores(field: np.ndarray, depth: int) -> dict[str, int]:
     if not logic.has_moves(field):
         return {"no moves": SCORE_ON_LOSS}
 
-    move_scores = {"u": 0, "d": 0, "r": 0, "l": 0}
+    move_scores = {"up": 0, "down": 0, "right": 0, "left": 0}
     for move in move_scores:
         new_field, score = logic.make_move(field.copy(), move)
         if np.allclose(field, new_field):
