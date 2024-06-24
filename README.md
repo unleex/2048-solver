@@ -9,8 +9,8 @@ Use this solver to solve any 2048 game!
 ## Before usage
 - This project uses Tesseract to find numbers on the 2048 field. You'll need not only tot pip install it, but also (Mac) **brew install**,
     more info in its repository: https://github.com/tesseract-ocr/tesseract.
-- To run and stop the code, this project uses keyboard module, that **requires root rights**. 
-    To run the code on Mac/Linux, paste *sudo python src/main.py* (with this repository as current working directory)
+- To run and stop the code, this project uses *keyboard* module, that **requires root rights**. 
+    To run the code on Mac/Linux, paste *sudo python src/main.py* in terminal (with this repository as current working directory)
 
 ## Usage
 After you run this successfully, instructions will pop up in terminal!
