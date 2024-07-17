@@ -1,12 +1,20 @@
 import interact
 import solver
-import keyboard
+from pynput import keyboard
 import pyautogui
 
 
+def on_press(key):
+    if key == keyboard.Key.esc:
+        globals().update({'running': False})
+        return False
+    
+
 DEPTH = 3
-keyboard.add_hotkey('space', lambda: globals().update({'running': False}))
 field_pos = interact.set_field_pos()
+listener = keyboard.Listener(
+    on_press=on_press)
+listener.start()
 running = True
 while running:
     field = interact.read_field(field_pos)

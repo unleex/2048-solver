@@ -1,4 +1,4 @@
-import keyboard
+from pynput import keyboard
 import mss 
 import numpy as np
 import pyautogui
@@ -11,10 +11,9 @@ TILE_PHOTO_PAD_WIDTH = 70 # because tesseract can't process small images. values
 TILE_PHOTO_PAD_COLOR = (100, 100)
 FIELD_SIZE = 4
 INSTRUCTION = """
-Select your 2048 field. Point your mouse on field's corner and press right shift. Then repeat for the opposite corner. 
-If you selected corner incorrectly, press backspace and select it again. 
+Select your 2048 field. Point your mouse on field's corner and press ctrl. Then repeat for the opposite corner. 
 While selecting field and in further algorithm work, don't move(scroll, zoom) your screen AT ALL!
-If you want to stop solving, hold space"""
+If you want to stop solving, hold Escape"""
 MAX_FIELD_X_Y_DIFFERENCE = 50
 EXCEEDED_MAX_FIELD_X_Y_DIFFERENCE_MSG = "Selected field doesn't look like a square. Try to select more accurately."
 
@@ -27,8 +26,14 @@ def set_field_pos() -> dict[str, int]:
     """
     print(INSTRUCTION)
     field_corners_xy = []
-    keyboard.add_hotkey('shift', lambda: field_corners_xy.append((pyautogui.position().x, pyautogui.position().y)))
-    keyboard.add_hotkey('backspace', lambda: field_corners_xy.pop())
+    def on_press(key):
+        if key == keyboard.Key.ctrl:
+            field_corners_xy.append((pyautogui.position().x, pyautogui.position().y))
+
+
+    listener = keyboard.Listener(
+        on_press=on_press)
+    listener.start()        
     while len(field_corners_xy) < 2:
         ...
     field_corners_xy = np.array(field_corners_xy)
@@ -41,6 +46,7 @@ def set_field_pos() -> dict[str, int]:
     height = bottom - upper
     assert abs(width - height) < MAX_FIELD_X_Y_DIFFERENCE, EXCEEDED_MAX_FIELD_X_Y_DIFFERENCE_MSG
 
+    listener.stop()
     return {'top': upper, 'left': left, 'width': width, 'height': height}
 
 
